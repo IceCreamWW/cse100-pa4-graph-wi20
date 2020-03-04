@@ -51,19 +51,15 @@ bool ActorGraph::buildGraphFromFile(const char* filename) {
         }
 
         // extract the information
-        string actor(record[0]);
-        string title(record[1]);
-        title += "#@";
-        title += record[2];
+        string actor("(" + record[0] + ")");
+        string title("[" + record[1] + "#@" + record[2] + "]");
 
-        if (actor2node.find(actor) == actor2node.end())
-            actor2node[actor] = new Actor(actor);
-
-        if (movie2node.find(title) == movie2node.end())
-            movie2node[title] = new Movie(title);
-
-        actor2node[actor]->movies.push_back(movie2node[title]);
-        movie2node[title]->actors.push_back(actor2node[actor]);
+        if (str2neighbours.find(actor) == str2neighbours.end())
+            str2neighbours[actor] = vector<string>();
+        if (str2neighbours.find(title) == str2neighbours.end())
+            str2neighbours[title] = vector<string>();
+        str2neighbours[actor].push_back(title);
+        str2neighbours[title].push_back(actor);
     }
 
     // if failed to read the file, clear the graph and return
@@ -78,20 +74,24 @@ bool ActorGraph::buildGraphFromFile(const char* filename) {
 
 void ActorGraph::BFS(const string& fromActor, const string& toActor,
                      string& shortestPath) {
-    queue<Actor*> q;
+    queue<string> q;
 
-    if (actor2node.find(fromActor) == actor2node.end()) return;
+    auto fromActorFormatted = "(" + fromActor + ")";
+    auto toActorFormatted = "(" + toActor + ")";
+
+    if (str2neighbours.find(fromActorFormatted) == str2neighbours.end()) return;
 
     unordered_map<string, string> traceback;
 
-    traceback["(" + fromActor + ")"] = "";
-    q.push(actor2node[fromActor]);
+    traceback[fromActorFormatted] = "";
+    q.push(fromActorFormatted);
+
     while (!q.empty()) {
-        auto actorNode = q.front();
+        auto node = q.front();
         q.pop();
 
-        if (actorNode->name == toActor) {
-            auto current = "(" + toActor + ")";
+        if (node == toActorFormatted){
+            auto current = node;
             while (!current.empty()) {
                 if (shortestPath.empty())
                     shortestPath = current;
@@ -105,22 +105,12 @@ void ActorGraph::BFS(const string& fromActor, const string& toActor,
             return;
         }
 
-        for (auto movie : actorNode->movies) {
-            if (traceback.find("[" + movie->title + "]") != traceback.end())
+        for (auto neighbour : str2neighbours[node]) {
+            if (traceback.find(neighbour) != traceback.end())
                 continue;
 
-            traceback["[" + movie->title + "]"] = "(" + actorNode->name + ")";
-
-            for (auto newActorNode : movie->actors) {
-                if (traceback.find("(" + newActorNode->name + ")") !=
-                    traceback.end())
-                    continue;
-
-                traceback["(" + newActorNode->name + ")"] =
-                    "[" + movie->title + "]";
-
-                q.push(newActorNode);
-            }
+            traceback[neighbour] = node;
+            q.push(neighbour);
         }
     }
 }
@@ -130,7 +120,4 @@ void ActorGraph::predictLink(const string& queryActor,
                              vector<string>& predictionNames,
                              unsigned int numPrediction) {}
 
-ActorGraph::~ActorGraph() {
-    for (auto item : actor2node) delete item.second;
-    for (auto item : movie2node) delete item.second;
-}
+ActorGraph::~ActorGraph() {}

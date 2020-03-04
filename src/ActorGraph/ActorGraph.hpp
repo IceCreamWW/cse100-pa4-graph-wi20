@@ -9,9 +9,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Actor.hpp"
-#include "Movie.hpp"
-
 using namespace std;
 
 /**
@@ -20,8 +17,7 @@ using namespace std;
  */
 class ActorGraph {
   protected:
-    unordered_map<string, Actor*> actor2node;
-    unordered_map<string, Movie*> movie2node;
+    unordered_map<string, vector<string>> str2neighbours;
 
   public:
     /* constructor that initializes an ActorGraph */

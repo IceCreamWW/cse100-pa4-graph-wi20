@@ -3,15 +3,18 @@
  */
 
 #include "ActorGraph.hpp"
+
 #include <fstream>
 #include <iostream>
+#include <queue>
 #include <sstream>
-#include <string>
+#include <tuple>
+#include <unordered_set>
 
 using namespace std;
 
 /* TODO */
-ActorGraph::ActorGraph() {}
+ActorGraph::ActorGraph() = default;
 
 /* Build the actor graph from dataset file.
  * Each line of the dataset file must be formatted as:
@@ -50,9 +53,17 @@ bool ActorGraph::buildGraphFromFile(const char* filename) {
         // extract the information
         string actor(record[0]);
         string title(record[1]);
-        int year = stoi(record[2]);
+        title += "#@";
+        title += record[2];
 
-        // TODO: we have an actor/movie relationship to build the graph
+        if (actor2node.find(actor) == actor2node.end())
+            actor2node[actor] = new Actor(actor);
+
+        if (movie2node.find(title) == movie2node.end())
+            movie2node[title] = new Movie(title);
+
+        actor2node[actor]->movies.push_back(movie2node[title]);
+        movie2node[title]->actors.push_back(actor2node[actor]);
     }
 
     // if failed to read the file, clear the graph and return
@@ -65,14 +76,61 @@ bool ActorGraph::buildGraphFromFile(const char* filename) {
     return true;
 }
 
-/* TODO */
 void ActorGraph::BFS(const string& fromActor, const string& toActor,
-                     string& shortestPath) {}
+                     string& shortestPath) {
+    queue<Actor*> q;
+
+    if (actor2node.find(fromActor) == actor2node.end()) return;
+
+    unordered_map<string, string> traceback;
+
+    traceback["(" + fromActor + ")"] = "";
+    q.push(actor2node[fromActor]);
+    while (!q.empty()) {
+        auto actorNode = q.front();
+        q.pop();
+
+        if (actorNode->name == toActor) {
+            auto current = "(" + toActor + ")";
+            while (!current.empty()) {
+                if (shortestPath.empty())
+                    shortestPath = current;
+                else if (shortestPath[0] == '[')
+                    shortestPath = current + "--" + shortestPath;
+                else
+                    shortestPath = current + "-->" + shortestPath;
+
+                current = traceback[current];
+            }
+            return;
+        }
+
+        for (auto movie : actorNode->movies) {
+            if (traceback.find("[" + movie->title + "]") != traceback.end())
+                continue;
+
+            traceback["[" + movie->title + "]"] = "(" + actorNode->name + ")";
+
+            for (auto newActorNode : movie->actors) {
+                if (traceback.find("(" + newActorNode->name + ")") !=
+                    traceback.end())
+                    continue;
+
+                traceback["(" + newActorNode->name + ")"] =
+                    "[" + movie->title + "]";
+
+                q.push(newActorNode);
+            }
+        }
+    }
+}
 
 /* TODO */
 void ActorGraph::predictLink(const string& queryActor,
                              vector<string>& predictionNames,
                              unsigned int numPrediction) {}
 
-/* TODO */
-ActorGraph::~ActorGraph() {}
+ActorGraph::~ActorGraph() {
+    for (auto item : actor2node) delete item.second;
+    for (auto item : movie2node) delete item.second;
+}

@@ -35,7 +35,7 @@ class Edge {
  */
 struct EdgePtrComp {
     bool operator()(Edge*& lhs, Edge*& rhs) const {
-        return lhs->weight < rhs->weight;
+        return lhs->weight > rhs->weight;
     }
 };
 

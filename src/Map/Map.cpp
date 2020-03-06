@@ -107,7 +107,7 @@ void Map::Dijkstra(const string& from, const string& to,
         for (auto edge : vertices[curId]->outEdges) {
             // for all vertices curId has edge to, update their weight
             int targetId =
-                vertexId[edge->getTarget(vertices[vertexIdTo])->name];
+                vertexId[edge->getTarget(vertices[curId])->name];
 
             if (edge->weight + weight[curId] < weight[targetId]) {
                 weight[targetId] = edge->weight + weight[curId];
@@ -115,11 +115,11 @@ void Map::Dijkstra(const string& from, const string& to,
             }
         }
         // choose the smallest
-        for (int i = 0; i < vertices.size(); ++i) {
-            if (added[i]) continue;
-            if (weight[i] < minWeight) {
-                minWeight = weight[i];
-                minWeightId = i;
+        for (int j = 0; j < vertices.size(); ++j) {
+            if (added[j]) continue;
+            if (weight[j] <= minWeight) {
+                minWeight = weight[j];
+                minWeightId = j;
             }
         }
         curId = minWeightId;

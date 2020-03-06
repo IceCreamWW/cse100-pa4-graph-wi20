@@ -7,3 +7,7 @@ target_link_libraries(pathfinder.exe PRIVATE actorgraph)
 add_executable (linkpredictor.exe linkpredictor.cpp)
 target_link_libraries(linkpredictor.exe PRIVATE actorgraph)
 
+add_executable (map.exe map.cpp)
+target_link_libraries(map.exe PRIVATE map_dep)
+
+

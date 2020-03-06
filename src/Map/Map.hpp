@@ -3,10 +3,13 @@
 
 #include <fstream>
 #include <iostream>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
+
 #include "Edge.hpp"
 
 using namespace std;
@@ -34,6 +37,10 @@ class Map {
      */
     bool addEdge(const string& name1, const string& name2);
 
+    /* helper function dfs for finding crucial roads */
+    void dfs(int& index, vector<int>& num, vector<int>& low,
+             vector<Edge*>& roads, int curId, int fatherId);
+
   public:
     /* TODO */
     Map();
@@ -51,6 +58,8 @@ class Map {
 
     /* TODO */
     void crucialRoads(vector<Edge*>& roads);
+
+    // Edge* getEdgeToVertex(Vertex* source, Vertex* target);
 
     /* Destructor of Map graph */
     ~Map();

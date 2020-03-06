@@ -1,5 +1,5 @@
 /**
- * TODO: add file header
+ * ActorGraph definition
  */
 
 #ifndef ACTORGRAPH_HPP

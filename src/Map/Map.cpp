@@ -88,15 +88,95 @@ bool Map::addEdge(const string& name1, const string& name2) {
     return true;
 }
 
-/* TODO */
 void Map::Dijkstra(const string& from, const string& to,
-                   vector<Vertex*>& shortestPath) {}
+                   vector<Vertex*>& shortestPath) {
+    vector<bool> added(vertices.size(), false);
+    vector<int> traceback(vertices.size(), -1);
+    vector<float> weight(vertices.size(), INFINITY);
 
-/* TODO */
-void Map::findMST(vector<Edge*>& MST) {}
+    int vertexIdTo = vertexId[to];
+    int curId = vertexIdTo;
+    weight[vertexIdTo] = 0;
 
-/* TODO */
-void Map::crucialRoads(vector<Edge*>& roads) {}
+    for (int i = 0; i < vertices.size(); ++i) {
+        float minWeight = INFINITY;
+        int minWeightId = -1;
+
+        // add current vertex to set
+        added[curId] = true;
+        for (auto edge : vertices[curId]->outEdges) {
+            // for all vertices curId has edge to, update their weight
+            int targetId =
+                vertexId[edge->getTarget(vertices[vertexIdTo])->name];
+
+            if (edge->weight + weight[curId] < weight[targetId]) {
+                weight[targetId] = edge->weight + weight[curId];
+                traceback[targetId] = curId;
+            }
+        }
+        // choose the smallest
+        for(int i = 0; i < vertices.size(); ++i) {
+            if (added[i]) continue;
+            if (weight[i] < minWeight) {
+                minWeight = weight[i];
+                minWeightId = i;
+            }
+        }
+        curId = minWeightId;
+        if (curId == vertexId[from]) break;
+    }
+    int tracebackId = vertexId[from];
+    while (tracebackId != -1) {
+        shortestPath.push_back(vertices[tracebackId]);
+        tracebackId = traceback[tracebackId];
+    }
+}
+
+void Map::findMST(vector<Edge*>& MST) {
+    priority_queue<Edge*, vector<Edge*>, EdgePtrComp> pq;
+    for (auto edge : undirectedEdges) pq.push(edge);
+    int added = 0;
+    vector<int> side(vertices.size());
+    for (int i = 0; i < side.size(); ++i) side[i] = i;
+    while (added < vertices.size() - 1) {
+        Edge* edge = pq.top();
+        pq.pop();
+        int sourceId = vertexId[edge->source->name];
+        int targetId = vertexId[edge->target->name];
+        if (side[sourceId] != side[targetId]) {
+            int mergedSide = min(side[sourceId], side[targetId]);
+            side[sourceId] = mergedSide;
+            side[targetId] = mergedSide;
+            ++added;
+            MST.push_back(edge);
+        }
+    }
+}
+
+void Map::crucialRoads(vector<Edge*>& roads) {
+    int index = 0;
+    vector<int> num(vertices.size(), 0);
+    vector<int> low(vertices.size(), 0);
+    dfs(index, num, low, roads, 0, 0);
+}
+
+void Map::dfs(int& index, vector<int>& num, vector<int>& low,
+              vector<Edge*>& roads, int curId, int fatherId) {
+    ++index;
+    num[curId] = index;
+    low[curId] = index;
+
+    for (auto edge : vertices[curId]->outEdges) {
+        int nextId = vertexId[edge->getTarget(vertices[curId])->name];
+        if (num[nextId] == 0) {
+            dfs(index, num, low, roads, nextId, curId);
+            low[curId] = min(low[curId], low[nextId]);
+
+            if (low[nextId] > num[curId]) roads.push_back(edge);
+        } else if (nextId != fatherId)
+            low[curId] = min(low[curId], num[nextId]);
+    }
+}
 
 /* Destructor of Map graph */
 Map::~Map() {

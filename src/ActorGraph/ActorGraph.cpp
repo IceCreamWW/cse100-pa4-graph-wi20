@@ -1,5 +1,5 @@
 /**
- * TODO: add file header
+ * Actor Graph Implement
  */
 
 #include "ActorGraph.hpp"
@@ -8,12 +8,10 @@
 #include <iostream>
 #include <queue>
 #include <sstream>
-#include <tuple>
 #include <unordered_set>
 
 using namespace std;
 
-/* TODO */
 ActorGraph::ActorGraph() = default;
 
 /* Build the actor graph from dataset file.
@@ -115,7 +113,6 @@ void ActorGraph::BFS(const string& fromActor, const string& toActor,
     }
 }
 
-/* TODO */
 void ActorGraph::predictLink(const string& queryActor,
                              vector<string>& predictionNames,
                              unsigned int numPrediction) {}

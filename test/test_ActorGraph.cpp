@@ -6,9 +6,8 @@ using namespace testing;
 
 // TODO: add tests for actor graph
 TEST(ActorGraphTest, SIMPLE_TEST) {
-    ActorGraph* graph = new ActorGraph();
-
     /*
+    ActorGraph* graph = new ActorGraph();
     const char* graphFileName = "pathfinder1_graph.tsv";
     graph->buildGraphFromFile(graphFileName);
 

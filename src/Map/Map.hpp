@@ -63,6 +63,10 @@ class Map {
 
     /* Destructor of Map graph */
     ~Map();
+
+  private:
+    /* helper function for kruscal algorithm */
+    int findRootWithCompression(vector<int>& partition, int target);
 };
 
 #endif  // Map_HPP

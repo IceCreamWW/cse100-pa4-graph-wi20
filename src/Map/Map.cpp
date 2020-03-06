@@ -115,7 +115,7 @@ void Map::Dijkstra(const string& from, const string& to,
             }
         }
         // choose the smallest
-        for(int i = 0; i < vertices.size(); ++i) {
+        for (int i = 0; i < vertices.size(); ++i) {
             if (added[i]) continue;
             if (weight[i] < minWeight) {
                 minWeight = weight[i];
@@ -132,24 +132,46 @@ void Map::Dijkstra(const string& from, const string& to,
     }
 }
 
+int Map::findRootWithCompression(vector<int>& partition, int target) {
+    int targetOri = target;
+    int pre = -1;
+    while (pre != target) {
+        pre = target;
+        target = partition[target];
+    }
+    partition[targetOri] = target;
+    return target;
+}
+
 void Map::findMST(vector<Edge*>& MST) {
     priority_queue<Edge*, vector<Edge*>, EdgePtrComp> pq;
     for (auto edge : undirectedEdges) pq.push(edge);
     int added = 0;
-    vector<int> side(vertices.size());
-    for (int i = 0; i < side.size(); ++i) side[i] = i;
+    vector<int> partition(vertices.size());
+    vector<int> weight(vertices.size(), 1);
+    for (int i = 0; i < partition.size(); ++i) partition[i] = i;
+
     while (added < vertices.size() - 1) {
         Edge* edge = pq.top();
         pq.pop();
         int sourceId = vertexId[edge->source->name];
         int targetId = vertexId[edge->target->name];
-        if (side[sourceId] != side[targetId]) {
-            int mergedSide = min(side[sourceId], side[targetId]);
-            side[sourceId] = mergedSide;
-            side[targetId] = mergedSide;
-            ++added;
-            MST.push_back(edge);
+
+        int sourceRoot = findRootWithCompression(partition, sourceId);
+        int targetRoot = findRootWithCompression(partition, targetId);
+        if (sourceRoot == targetRoot) continue;
+
+        if (weight[sourceRoot] > weight[targetRoot]) {
+            weight[sourceRoot] += weight[targetRoot];
+            partition[targetRoot] = sourceRoot;
         }
+        else {
+            weight[targetRoot] += weight[sourceRoot];
+            partition[sourceRoot] = targetRoot;
+        }
+
+        ++added;
+        MST.push_back(edge);
     }
 }
 

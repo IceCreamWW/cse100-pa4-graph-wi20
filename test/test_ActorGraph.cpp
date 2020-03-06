@@ -1,10 +1,9 @@
 #include <gtest/gtest.h>
-#include "ActorGraph.hpp"
+// #include "ActorGraph.hpp"
 
 using namespace std;
 using namespace testing;
 
-// TODO: add tests for actor graph
 TEST(ActorGraphTest, SIMPLE_TEST) {
     /*
     ActorGraph* graph = new ActorGraph();

@@ -1,11 +1,10 @@
 #include <gtest/gtest.h>
-#include "Map.hpp"
+// #include "Map.hpp"
 
 using namespace std;
 using namespace testing;
 
-// TODO: add tests for map graph
-TEST(ActorGraphTest, SIMPLE_TEST) {
+TEST(MapTest, SIMPLE_TEST) {
     /*
     ActorGraph* graph = new ActorGraph();
     const char* graphFileName = "data/pathfinder1_graph.tsv";

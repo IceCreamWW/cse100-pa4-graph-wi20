@@ -1,4 +1,4 @@
-map = library('map', sources: ['Map.cpp'])
+map = library('map', sources: ['Map.cpp', 'Edge.cpp'])
 
 inc = include_directories('.')
 
